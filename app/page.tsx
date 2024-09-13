@@ -1,17 +1,22 @@
 "use client"
 import React, { useState } from 'react'
 import Button from './component/button'
-import { set } from 'zod';
+import Image from 'next/image';
+import search from '@/app/public/search.png'
 
 interface Type {
   saves: { count: number, color: string }[];
   count: number;
-
 }
 
 function Page() {
   const [count, setCount] = useState<number>(0);
   const [save, setSave] = useState<Type['saves']>([]);
+  const [even, setEven] = useState<number>(0);
+  const [odd, setOdd] = useState<number>(0);
+  const [searchInput, setSearchInput] = useState<string>(''); // State to hold search input
+  const [searchResult, setSearchResult] = useState<Type['saves']>([]); // State to hold search results
+
   const color = {
     color1: "yellow",
     color2: "pink"
@@ -26,18 +31,31 @@ function Page() {
   }
 
   const savearr = (count: number) => {
-    // Set background color based on whether count is even or odd
     const bgColor = count % 2 === 0 ? color.color1 : color.color2;
+    const evenNum = count % 2 === 0;
+    const isCounted = save.some(items => items.count === count);
 
+    if (evenNum && !isCounted) setEven(prev => prev + 1);
+    if (!evenNum && !isCounted) setOdd(prev => prev + 1);
 
-    const isCounted = save.some(items => items.count === count)
-
-if(!isCounted) setSave(prevSave => [...prevSave, { count, color: bgColor }]);
-
+    if (!isCounted) setSave(prevSave => [...prevSave, { count, color: bgColor }]);
   }
 
   const handleReset = () => {
     setSave([]);
+    setEven(0);
+    setOdd(0);
+    setSearchResult([]); // Reset search result as well
+    setSearchInput(''); // Clear the search input
+  }
+
+  const handleSearch = () => {
+    if (searchInput.trim() === '') {
+      alert("Please enter something to search!"); // Alert if search is empty
+      return;
+    }
+    const filteredResults = save.filter(item => item.count.toString().includes(searchInput));
+    setSearchResult(filteredResults); // Update the search results
   }
 
   return (
@@ -49,37 +67,55 @@ if(!isCounted) setSave(prevSave => [...prevSave, { count, color: bgColor }]);
             <div>
               <Button
                 text='up'
-                onClick={handleCount}  // Corrected to onClick
+                onClick={handleCount}
                 className='bg-green-300 py-2 px-5 rounded-md active:translate-y-1 duration-300 shadow-lg'
               />
             </div>
             <div>
               <Button
                 text='down'
-                onClick={handleCountDown}  // Corrected to onClick
+                onClick={handleCountDown}
                 className='bg-red-300 py-2 px-5 rounded-md active:translate-y-1 duration-300 shadow-lg'
               />
             </div>
           </div>
           <Button
             text='save'
-            onClick={() => savearr(count)}  // Pass count to savearr
+            onClick={() => savearr(count)}
             className='bg-sky-300 py-2 px-5 rounded-md active:translate-y-1 duration-300 shadow-lg'
           />
         </div>
       </section>
 
-      <section className='w-[200px] '>
-        <div className='h-[300px] flex flex-col gap-1 text-center overflow-y-scroll'>
-          {save.map((arr, indx) => (
-            <p className='bg-pink-300 rounded-xl' style={{ backgroundColor: arr.color }} key={indx}>{arr.count}</p>
-          ))}
+      <section className='w-[200px] bg-cyan-200 flex flex-col items-center'>
+        <h1> <span>even : {even} </span> | <span> odd : {odd}</span> </h1>
+
+        <div className='flex items-center'>
+          <input
+            type="text"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}  // Update search input value
+            className='search h-6 w-40 rounded-3xl border-[1px] border-black outline-none pl-2 '
+          />
+          <button className='p-2 hover:scale-[1.1]' onClick={handleSearch}>
+            <Image alt='img' src={search}></Image>
+          </button>
         </div>
-        <Button
-          text="reset"
-          onClick={handleReset}  // Corrected to onClick
-          className='bg-red-300 py-2 px-5 rounded-md active:translate-y-1 duration-300 shadow-lg'
-        />
+
+        <div className='w-full flex flex-col items-center justify-center'>
+          <div className='h-[300px] w-full flex flex-col gap-1 text-center overflow-y-scroll'>
+            {(searchInput.trim() ? searchResult : save).map((arr, indx) => (
+              <p className='bg-pink-300 rounded-xl' style={{ backgroundColor: arr.color }} key={indx}>
+                {arr.count}
+              </p>
+            ))}
+          </div>
+          <Button
+            text="reset"
+            onClick={handleReset}
+            className='bg-red-300 py-2 px-5 rounded-md active:translate-y-1 duration-300 shadow-lg w-[90px]'
+          />
+        </div>
       </section>
     </main>
   )
