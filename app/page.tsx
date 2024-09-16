@@ -72,16 +72,25 @@ function Page() {
 
   const dropItems = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
+    const iscounted = droppedItem.some(item => item.count == count);
+
+    if(iscounted) return alert("already exist");
     if (dragItem !== null) {
       const draggedObject = save.find(items => items.count === dragItem);
       if (draggedObject) setDroppedItem(prev => [...prev, draggedObject]);
     }
   };
 
+  const delDropItem = (count: any) => {
+    setDroppedItem((prevDroppedItems) => 
+      prevDroppedItems.filter(item => item.count !== count)
+    );
+  };
+  
 
 
   return (
-    <main className='flex justify-center items-center h-screen gap-[200px]' >
+    <main className='flex justify-center items-center h-full p-4 xl:h-screen lg:h-screen 2xl:h-screen gap-[50px] xl:gap-[200px]  lg:gap-[200px]  2xl:gap-[200px] flex-col lg:flex-row xl:flex-row 2xl:flex-row' >
       <section className='flex justify-center flex-col items-center'>
         <h1 className='text-center h-12'>{count}</h1>
         <div className='flex justify-center flex-col gap-4'>
@@ -147,9 +156,12 @@ function Page() {
               <div>drop item</div>
             ) : (
               droppedItem.map((item, indx) => (
-                <p key={indx} className='bg-green-300 rounded-xl p-2'>
-                  {item.count}
-                </p>
+                <div key={indx} className='flex gap-2 bg-green-300 rounded-xl p-2 pr-4'>
+                  <p  className=' w-full'>
+                    {item.count}
+                  </p>
+                  <button onClick={() => delDropItem(item.count)} className='hover:bg-white px-2 rounded-full duration-200 '>x</button>
+                </div>
               ))
             )}
           </div>
