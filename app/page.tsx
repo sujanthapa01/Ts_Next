@@ -81,7 +81,7 @@ function Page() {
     }
   };
 
-  const delDropItem = (count: any) => {
+  const delDropItem = () => {
     setDroppedItem((prevDroppedItems) => 
       prevDroppedItems.filter(item => item.count !== count)
     );
